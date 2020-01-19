@@ -1,0 +1,39 @@
+- hosts: master
+  become: yes
+  tasks:
+    - name: Start the cluster
+      shell: kubeadm init --ignore-preflight-errors=NumCPU  >> cluster.txt #--pod-network-cidr=10.244.0.0/16
+      args:
+        chdir: $HOME
+        creates: cluster.txt
+
+    - name: create .kube directory
+      become: yes
+      become_user: ubuntu
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: yes
+        owner: ubuntu
+
+    - name: install Pod network
+      #become: yes
+      become_user: ubuntu
+      shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml >> pod_setup.txt
+      args:
+        chdir: $HOME
+        creates: pod_setup.txt
+
+    # - name: Generate join command
+    #   command: kubeadm token create --print-join-command
+    #   register: join_command
+
+    # - name: Copy join command to local file
+    #   become: yes
+    #   local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="/home/carmit/Ansible/join-command"

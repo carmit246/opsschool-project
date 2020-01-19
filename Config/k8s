@@ -1,0 +1,36 @@
+---
+- name: Install required system packages
+  yum: name={{ item }} state=latest
+  with_items:
+   - 'yum-utils'
+   - 'device-mapper-persistent-data'ignore-preflight-errors=NumCPU
+   - 'lvm2'
+   - 'ca-certificates'
+   - 'curl'
+
+- name: Add Docker GPG key.
+  rpm_key:
+    key: "{{ Redhat_Docker_GPG_key }}"
+    state: present
+    
+- name: Add Docker repo
+  get_url:
+    url: "{{ Redhat_Docker_repo }}"
+    dest: /etc/yum.repos.d/docker-ce.repo
+  become: yes 
+
+- name: install the containerd.io rpm from a remote repo
+  yum:
+    name: "{{ Redhat_containerdio_url }}"
+    state: present
+
+- name: Update yum and install docker-ce
+  yum: name=docker-ce state=latest
+  notify:
+    - restart docker
+
+- name: add ec2-user to docker group
+    user:
+      name: {{ Ubuntu_docker_user }}
+      groups: docker
+      append: yes
