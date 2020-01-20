@@ -1,39 +1,34 @@
 - hosts: master
   become: yes
   tasks:
-    # - name: restart docker
-    #   service:
-    #     name: docker
-    #     state: started
-    #     enabled: yes
-    #     masked: no
+    - name: restart docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+        masked: no
 
-    # - name: Start the cluster
-    #   #become_user: ubuntu
-    #   shell: kubeadm init --ignore-preflight-errors=NumCPU  >> cluster.txt #--pod-network-cidr=10.244.0.0/16
-    #   args:
-    #     chdir: $HOME
-    #     creates: cluster.txt
+    - name: Start the cluster
+      #become_user: ubuntu
+      shell: kubeadm init --ignore-preflight-errors=NumCPU  >> cluster.txt #--pod-network-cidr=10.244.0.0/16
+      args:
+        chdir: $HOME
+        creates: cluster.txt
 
-    # - name: create .kube directory
-    #   become: yes
-    #   become_user: ubuntu
-    #   file:
-    #     path: $HOME/.kube
-    #     state: directory
-    #     mode: 0755
+    - name: create .kube directory
+      become: yes
+      become_user: ubuntu
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
 
-    # - name: copy admin.conf to user's kube config
-    #   copy:
-    #     src: /etc/kubernetes/admin.conf
-    #     dest: /home/ubuntu/.kube/config
-    #     remote_src: yes
-    #     owner: ubuntu
-
-   # - name: linux strace
-      #become: yes
-      #shell: strace -eopenat kubectl version
-    #  shell: kubectl version
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: yes
+        owner: ubuntu
 
     - name: install Pod network
       #become: yes
