@@ -1,12 +1,21 @@
-- hosts: nodes
+- hosts: all
   become: yes
+  vars:
+    ansible_host_key_checking: false
+ 
   tasks:
+   - name: containerd Installation
+     apt:
+       name: containerd
+       state: latest
+       update_cache: true
+
    - name: Docker Installation
      apt:
        name: docker.io
-       state: present
+       state: latest
        update_cache: true
-
+   
    - name: install APT Transport HTTPS
      apt:
        name: apt-transport-https
@@ -26,15 +35,20 @@
    - name: install kubelet
      apt:
        name: kubelet
-       #=1.14.0-00
        state: present
        update_cache: true
 
    - name: install kubeadm
      apt:
        name: kubeadm
-       #1.14.0-00
        state: present
+
+   - name: start docker
+     service:
+       name: docker
+       state: started
+       enabled: yes
+       masked: no
 
 - hosts: master
   become: yes
@@ -45,3 +59,4 @@
        #=1.14.0-00
        state: present
        force: yes
+

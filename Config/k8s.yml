@@ -1,0 +1,11 @@
+- hosts: master
+  become: yes
+  tasks:
+  - name: install k8s
+    include_tasks: "k8s-dependencies.yml"
+
+  - name: config k8s master
+    include_tasks: "k8s-master.yml"
+
+  - name: config k8s worker
+    include_tasks: "k8s-node.yml"

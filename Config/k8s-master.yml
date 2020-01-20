@@ -1,26 +1,39 @@
 - hosts: master
   become: yes
   tasks:
-    - name: Start the cluster
-      shell: kubeadm init --ignore-preflight-errors=NumCPU  >> cluster.txt #--pod-network-cidr=10.244.0.0/16
-      args:
-        chdir: $HOME
-        creates: cluster.txt
+    # - name: restart docker
+    #   service:
+    #     name: docker
+    #     state: started
+    #     enabled: yes
+    #     masked: no
 
-    - name: create .kube directory
-      become: yes
-      become_user: ubuntu
-      file:
-        path: $HOME/.kube
-        state: directory
-        mode: 0755
+    # - name: Start the cluster
+    #   #become_user: ubuntu
+    #   shell: kubeadm init --ignore-preflight-errors=NumCPU  >> cluster.txt #--pod-network-cidr=10.244.0.0/16
+    #   args:
+    #     chdir: $HOME
+    #     creates: cluster.txt
 
-    - name: copy admin.conf to user's kube config
-      copy:
-        src: /etc/kubernetes/admin.conf
-        dest: /home/ubuntu/.kube/config
-        remote_src: yes
-        owner: ubuntu
+    # - name: create .kube directory
+    #   become: yes
+    #   become_user: ubuntu
+    #   file:
+    #     path: $HOME/.kube
+    #     state: directory
+    #     mode: 0755
+
+    # - name: copy admin.conf to user's kube config
+    #   copy:
+    #     src: /etc/kubernetes/admin.conf
+    #     dest: /home/ubuntu/.kube/config
+    #     remote_src: yes
+    #     owner: ubuntu
+
+   # - name: linux strace
+      #become: yes
+      #shell: strace -eopenat kubectl version
+    #  shell: kubectl version
 
     - name: install Pod network
       #become: yes
@@ -29,11 +42,3 @@
       args:
         chdir: $HOME
         creates: pod_setup.txt
-
-    # - name: Generate join command
-    #   command: kubeadm token create --print-join-command
-    #   register: join_command
-
-    # - name: Copy join command to local file
-    #   become: yes
-    #   local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="/home/carmit/Ansible/join-command"
