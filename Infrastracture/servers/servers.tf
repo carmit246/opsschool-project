@@ -31,8 +31,7 @@ resource "aws_security_group" "bastion-sg" {
   }
 }
  */
- /*  
-#Create EC2 Web Instances
+
 resource "aws_instance" "project-bastion" {
     count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
     ami = "ami-024582e76075564db"
@@ -45,7 +44,7 @@ resource "aws_instance" "project-bastion" {
         Name = "project-bastion${count.index}"
     }
 }
- */
+ 
 
 
 resource "aws_security_group" "k8s-master" {
