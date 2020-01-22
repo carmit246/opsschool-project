@@ -69,7 +69,7 @@
 
    - name: Start the cluster
       #become_user: ubuntu
-     shell: kubeadm init --ignore-preflight-errors=NumCPU  >> cluster.txt #--pod-network-cidr=10.244.0.0/16
+     shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU  >> cluster.txt #
      args:
        chdir: $HOME
        creates: cluster.txt
@@ -90,10 +90,10 @@
        group: ubuntu
        mode: 0644
 
-    - name: fetch admin.conf file to local machine
-      fetch:
-        src: /etc/kubernetes/admin.conf
-        dest: /home/carmit/Ansible/kubeconfig
+   - name: fetch admin.conf file to local machine
+     fetch:
+       src: /etc/kubernetes/admin.conf
+       dest: /home/carmit/kubeconfig
 
    - name: install Pod network
      #become: yes

@@ -1,5 +1,5 @@
 [k8s-master]
-${k8s-master-ip}
+master ansible_host=${k8s-master-ip}
 
 [k8s-workers]
 ${k8s-worker-ip}
