@@ -1,0 +1,71 @@
+- hosts: jenkins-slaves
+  become: yes
+
+  tasks:
+  - name: install java
+    apt:
+      name: default-jre
+      state: present
+      update_cache: true
+
+ # - name: Download Jenkins Swarm Client
+  #  get_url: 
+   #   dest: /home/ubuntu/swarm-client-1.8-jar-with-dependencies.jar 
+    #  url: http://maven.jenkins-ci.org/content/repositories/releases/org/jenkins-ci/plugins/swarm-client/1.8/swarm-client-1.8-jar-with-dependencies.jar 
+     # owner: ubuntu
+  - name: Create .kube directory
+    file:
+      path: /home/ubuntu/.kube
+      state: directory
+
+  - name: Copy k8s admin.conf file
+    copy:
+      src: /home/carmit/kubeconfig/master/etc/kubernetes/admin.conf
+      dest: /home/ubuntu/.kube/config
+      owner: ubuntu
+      group: ubuntu
+
+  - name: containerd Installation
+    apt:
+      name: containerd
+      state: latest
+      update_cache: true
+
+  - name: Docker Installation
+    apt:
+      name: docker.io
+      state: latest
+      update_cache: true
+
+  - name: start docker
+    service:
+      name: docker
+      state: started
+      enabled: yes
+      masked: no
+  
+  - name: install kubectl
+    apt:
+      name: kubectl
+      state: present
+      update_cache: true
+      force: yes
+   
+# - name: Create slave home directory
+#   file:
+#     path: '{{ slave_linux_home }}'
+#     state: directory
+#     owner: '{{ slave_linux_jenkins_username }}'
+#     group: '{{ slave_linux_user_group }}'
+#     mode: 0775
+#   become: true
+
+# - name: Install slave jenkins agent
+#   jenkins_script:
+#     user: '{{ master_username }}'
+#     password: '{{ master_password }}'
+#     validate_certs: false
+#     timeout: 120
+#     url: '{{ master_url }}'
+#     script: >-
+#       {{ lookup('template', 'add_linux_slave.groovy.j2') }}
