@@ -6,5 +6,10 @@ metadata:
     app: hw3
 spec:
   containers:
-    - image: training/webapp:1
+    - image: training/webapp
       name: webapp
+      ports:
+      - containerPort: 8080
+        name: http
+        protocol: TCP
+EOF

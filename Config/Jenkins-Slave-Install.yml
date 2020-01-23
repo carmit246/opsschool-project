@@ -44,6 +44,17 @@
       enabled: yes
       masked: no
   
+  - name: add Kubernetes apt-key for APT repository
+    apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
+
+  - name: add Kubernetes APT repository
+    apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      filename: 'kubernetes'
+
   - name: install kubectl
     apt:
       name: kubectl

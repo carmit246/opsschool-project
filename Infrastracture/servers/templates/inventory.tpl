@@ -14,5 +14,3 @@ k8s-workers
 ansible_ssh_private_key_file=/home/carmit/Downloads/ansible.pem 
 ansible_python_interpreter=/usr/bin/python3
 ansible_user=ubuntu
-
-
