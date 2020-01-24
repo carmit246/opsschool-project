@@ -44,6 +44,12 @@
       enabled: yes
       masked: no
   
+  - name: add to docker group
+    user:
+      name: ubuntu
+      groups: docker
+      append: yes
+
   - name: add Kubernetes apt-key for APT repository
     apt_key:
       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -80,3 +86,24 @@
 #     url: '{{ master_url }}'
 #     script: >-
 #       {{ lookup('template', 'add_linux_slave.groovy.j2') }}
+  - pip:
+    name: jenkinsapi
+
+  - name: Create jenkins node
+    jenkins_api:
+      jenkins_url: '{{ jenkins_master_url }}'
+      command: create_node
+      args:
+        '{{ ansible_hostname }}'
+        #- '{{ jenkins_node_name or ansible_hostname }}'
+      kwargs:
+        #numExecutors: '{{ jenkins_node_executors }}'
+        remoteFS: '{{ jenkins_home }}'
+        #labels: '{{ jenkins_node_labels }}'
+        launcher: hudson.plugins.sshslaves.SSHLauncher
+        launcher_params:
+          port: "{{ jenkins_node_port }}"
+          username: '{{ jenkins_username }}'
+          credentialsId: '{{ jenkins_node_credentials_id }}'
+          host: '{{ ansible_hostname }}' #'{{ (jenkins_node_host or ansible_eth0.ipv4.address)|trim }}'
+    #when: not ansible_check_mode

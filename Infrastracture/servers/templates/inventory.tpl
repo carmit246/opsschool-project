@@ -9,6 +9,7 @@ k8s-master
 k8s-workers
 
 [jenkins-slaves]
+${jenkins-slave-ip}
 
 [all:vars]
 ansible_ssh_private_key_file=/home/carmit/Downloads/ansible.pem 
