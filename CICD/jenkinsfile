@@ -1,43 +1,60 @@
 node("Slave1"){
-        stage("Build") {
-                sh """
-                tee /home/ubuntu/pod.yml <<-'EOF'
+  stage("Get Repo") {
+    checkout scm
+  }
+  
+  stage("Create Docker Image") {
+    //Dockerfile
+    app = docker.build("carmitbe1/opsschool-project")
+  }
+
+  stage("verify Docker Image") 
+  {
+    sh "docker images"
+  }
+
+  stage("Push to DockerHub") {
+    withDockerRegistry(credentialsId: 'dockerhub.carmitbe1', url: '') 
+    {
+      app.push()
+    }
+  }
+
+  stage("Build") {
+    sh """
+      tee /home/ubuntu/pod.yml <<-'EOF'
 apiVersion: v1
 kind: Pod
 metadata:
-  name: hw3
+  name: opsschool-project
   labels:
-    app: hw3
+    app: opsschool-project
 spec:
   containers:
-    - image: training/webapp
-      name: webapp
+  - image: carmitbe1/opsschool-project
+      name: opsschool-project
       ports:
       - containerPort: 8080
         name: http
         protocol: TCP
 EOF
             """
-                echo "build"
-                
-        }
-        stage("Deploy") {                
-            script {
-                   try{
-                        //kubernetesDeploy configs: 'ttt.yml', kubeConfig: [path: ''], kubeconfigId: 'k8s-test', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
-                        sh """kubectl apply -f /home/ubuntu/pod.yml > /home/ubuntu/startPod.log"""
-                        echo "try"
-                   }catch(error){
-                       echo "catch"
-                        
-                   }
-                }
-            
-        }
-        stage("Test") {
-            sh """kubectl get pods > /home/ubuntu/getPods.log"""
-            echo "test"
-            //curl...
-             
-            }
-        }
+      echo "build"           
+  }
+  stage("Deploy") {                
+    script {
+      try{
+        //kubernetesDeploy configs: 'ttt.yml', kubeConfig: [path: ''], kubeconfigId: 'k8s-test', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
+        sh """kubectl apply -f /home/ubuntu/pod.yml > /home/ubuntu/startPod.log"""
+        echo "try"
+      }catch(error){
+        echo "catch"                  
+      }
+    }        
+  }
+  stage("Test") {
+    sh """kubectl get pods > /home/ubuntu/getPods.log"""
+    echo "test"
+    //curl...       
+  }
+}
