@@ -31,7 +31,7 @@ metadata:
     app: opsschool-project
 spec:
   containers:
-  - image: carmitbe1/opsschool-project
+  - image: carmitbe1/opsschool-project:1
       name: opsschool-project
       ports:
       - containerPort: 8080
