@@ -80,25 +80,13 @@ resource "aws_instance" "project-k8s-master" {
     }
 }
 
-  #provisioner "file" {
-   # source      = "C:\Users\Carmit\.aws\credentials"
-    #destination = "/home/ubuntu/.aws/credentials"
-  #}
-
-  #provisioner "file" {
-   # source      = "C:\Users\Carmit\.aws\config"
-    #destination = "/home/ubuntu/.aws/config"
-  #}
-#}
-
-
-/*
-resource "aws_s3_bucket_object" "dist" {
-  for_each = fileset("/home/pawan/Documents/Projects/", "*")
-
-  bucket = "lesson3hw-terraform-remote-state-storage-s3"
-  key    = each.value
-  source = "/home/pawan/Documents/Projects/${each.value}"
-  # etag makes the file update when it changes; see https://stackoverflow.com/questions/56107258/terraform-upload-file-to-s3-on-every-apply
-  etag   = filemd5("/home/pawan/Documents/Projects/${each.value}")
-} */ 
+resource "aws_instance" "project-consul" {
+    ami = "ami-04b9e92b5572fa0d1"
+    instance_type = "t2.micro"
+    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0], 1)}"
+    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-consul}"]
+    key_name = "ansible_key"
+    tags = {
+        Name = "project-consul"
+    }
+}

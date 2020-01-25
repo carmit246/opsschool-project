@@ -197,6 +197,32 @@ resource "aws_security_group" "k8s-node" {
   }
 }
 
+resource "aws_security_group" "consul" {
+  name   = "consul-security-group"
+  vpc_id = "${aws_vpc.project-vpc.id}"
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 22
+    to_port     = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 8500
+    to_port     = 8500
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    protocol    = -1
+    from_port   = 0 
+    to_port     = 0 
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 #associate route table for external subnet
 resource "aws_route_table_association" "project-pub" {
     count = "${length(aws_subnet.project-pub.*.id)}"

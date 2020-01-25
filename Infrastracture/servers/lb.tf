@@ -1,4 +1,4 @@
-/* 
+/*
 #Create ELB
 resource "aws_elb" "opsschool-project-elb" {  
   name            = "opsschool-project-elb"  

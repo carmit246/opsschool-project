@@ -1,5 +1,5 @@
-/* resource "aws_iam_role" "lesson3hw_role" {
-  name = "lesson3hw_role"
+resource "aws_iam_role" "opsschool-project" {
+  name = "opsschool-project"
 
   assume_role_policy = <<EOF
 {
@@ -17,18 +17,18 @@
 EOF
 
   tags = {
-      Name = "lesson3hw"
+      Name = "opsschool-project"
   }
 }
 
-resource "aws_iam_instance_profile" "lesson3hw_profile" {
-  name = "lesson3hw_profile"
-  role = "${aws_iam_role.lesson3hw_role.name}"
+resource "aws_iam_instance_profile" "opsschool-project" {
+  name = "opsschool-project"
+  role = "${aws_iam_role.opsschool-project.name}"
 }
 
-resource "aws_iam_role_policy" "lesson3hw_policy" {
-  name = "lesson3hw_policy"
-  role = "${aws_iam_role.lesson3hw_role.id}"
+resource "aws_iam_role_policy" "opsschool-project" {
+  name = "opsschool-project"
+  role = "${aws_iam_role.opsschool-project.id}"
 
   policy = <<EOF
 {
@@ -43,4 +43,4 @@ resource "aws_iam_role_policy" "lesson3hw_policy" {
   ]
 }
 EOF
-} */
+} 
