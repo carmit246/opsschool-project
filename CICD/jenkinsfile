@@ -31,12 +31,12 @@ metadata:
     app: opsschool-project
 spec:
   containers:
-  - image: carmitbe1/opsschool-project:1
-      name: opsschool-project
-      ports:
-      - containerPort: 8080
-        name: http
-        protocol: TCP
+  - name: opsschool-project
+    image: carmitbe1/opsschool-project
+    ports:
+    - containerPort: 8080
+      name: http
+      protocol: TCP
 EOF
             """
       echo "build"           

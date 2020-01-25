@@ -1,4 +1,6 @@
-jenkins_master_url: http://184.72.196.203:8080
+jenkins_master_url: http://54.198.104.142:8080
 jenkins_home: /home/ubuntu
 #jenkins_node_labels: 
 jenkins_username: ubuntu
+credentialsId: ubuntu-slave1
+#jenkins_node_host:

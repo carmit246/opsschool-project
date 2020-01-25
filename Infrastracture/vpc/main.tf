@@ -138,6 +138,64 @@ resource "aws_security_group" "project-sg" {
     }
 }
 
+resource "aws_security_group" "k8s-master" {
+  name   = "k8s-master-security-group"
+  vpc_id = "${aws_vpc.project-vpc.id}"
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 22
+    to_port     = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 6443
+    to_port     = 6443
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    protocol    = -1
+    from_port   = 0 
+    to_port     = 0 
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "k8s-node" {
+  name   = "k8s-node-security-group"
+  vpc_id = "${aws_vpc.project-vpc.id}"
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 22
+    to_port     = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 10250
+    to_port     = 10250
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 30036
+    to_port     = 30036
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    protocol    = -1
+    from_port   = 0 
+    to_port     = 0 
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 #associate route table for external subnet
 resource "aws_route_table_association" "project-pub" {

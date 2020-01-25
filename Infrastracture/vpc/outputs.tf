@@ -13,3 +13,11 @@ output "subnet-int-id" {
 output "security-group-pub" {
   value = "${aws_security_group.project-sg.id}"
 }
+
+output "security-group-k8s-master" {
+  value = "${aws_security_group.k8s-master.id}"
+}
+
+output "security-group-k8s-node" {
+  value = "${aws_security_group.k8s-node.id}"
+}

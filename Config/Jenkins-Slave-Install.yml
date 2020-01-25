@@ -1,5 +1,7 @@
 - hosts: jenkins-slaves
   become: yes
+  vars_files:
+    - /home/carmit/Git-Repositories/Project/Config/Jenkins-vars.yml
 
   tasks:
   - name: install java
@@ -77,6 +79,24 @@
       update_cache: true
       force: yes
    
+  - name: Download jenkins-api
+    get_url:
+      url: http://'{{jenkins_master_url}}'/jnlpJars/jenkins-cli.jar
+      dest: /home/ubuntu/jenkins-cli.jar
+
+  - name: Copy createNode script
+    copy: 
+      src: /home/carmit/Git-Repositories/Project/Config/create-jenkins-node.sh
+      dest: /home/ubuntu 
+      owner: ubuntu
+      mode: '550'
+
+  - name: Install and configure Jenkine Slave
+    shell: /home/ubuntu/create-jenkins-node.sh '{{ansible_hostname}}' '{{jenkins_master_url}}'
+
+   #   java -jar agent.jar -jnlpUrl http://10.201.64.144/computer/Agent_Node_1/slave-agent.jnlp -workDir "E:\Jenkins"
+  # wget http://54.198.104.142:8080/jnlpJars/jenkins-cli.jar
+
 # - name: Create slave home directory
 #   file:
 #     path: '{{ slave_linux_home }}'
