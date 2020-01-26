@@ -3,7 +3,8 @@ data "template_file" "inventory" {
     vars = {
       k8s-master-ip = "${aws_instance.project-k8s-master.public_ip}"
       k8s-worker-ip = "${join("\n", aws_instance.project-k8s-nodes.*.public_ip)}"
-      jenkins-slave-ip = "${join("\n", aws_instance.project-bastion.*.public_ip)}"
+      jenkins-slave-ip =  "${aws_instance.project-slave.public_ip}" #"${join("\n", aws_instance.project-slave.*.public_ip)}"
+      bastion-ip = "${aws_instance.project-bastion.public_ip}"
     }
 }
 

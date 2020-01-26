@@ -8,11 +8,14 @@ ${k8s-worker-ip}
 k8s-master
 k8s-workers
 
+[bastion]
+${bastion-ip}
+
 [jenkins-slaves]
 ${jenkins-slave-ip}
 
 [k8s:vars]
-#ansible_ssh_common_args='ssh -o ProxyCommand="ssh -W %h:%p -q ubuntu@
+ansible_ssh_common_args='ssh -o ProxyCommand="ssh -W %h:%p -q ubuntu@${bastion-ip}
 
 [all:vars]
 ansible_ssh_private_key_file=/home/carmit/Downloads/ansible.pem 

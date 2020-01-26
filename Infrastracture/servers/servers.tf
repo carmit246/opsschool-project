@@ -33,23 +33,35 @@ resource "aws_security_group" "bastion-sg" {
  */
 
 resource "aws_instance" "project-bastion" {
-    count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
+    #count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
     ami = "ami-024582e76075564db"
     instance_type = "t2.micro"
-    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0],count.index)}"
-    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-k8s-master}"]
+    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0],0)}"
+    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-pub}"]
     key_name = "ansible_key"
-    #iam_instance_profile = "${aws_iam_instance_profile.lesson3hw_profile.name}"
     tags = {
-        Name = "project-bastion${count.index}"
+        Name = "project-bastion"
     }
 }
  
 
+resource "aws_instance" "project-slave" {
+    #count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
+    ami = "ami-024582e76075564db"
+    instance_type = "t2.micro"
+    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0],1)}"
+    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-pub}"]
+    key_name = "ansible_key"
+    tags = {
+        Name = "project-slave"
+    }
+}
+
+
 resource "aws_instance" "project-k8s-master" {
     ami = "ami-04b9e92b5572fa0d1"
     instance_type = "t2.micro"
-    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0], 1)}"
+    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0], 1)}"
     vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-pub}"]
     key_name = "ansible_key"
     #iam_instance_profile = "${aws_iam_instance_profile.lesson3hw_profile.name}"
@@ -67,7 +79,7 @@ resource "aws_instance" "project-k8s-master" {
 
 
   resource "aws_instance" "project-k8s-nodes" {
-    count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
+    count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0]}")
     ami = "ami-04b9e92b5572fa0d1"
     instance_type = "t2.micro"
     subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0],count.index)}"
@@ -81,12 +93,13 @@ resource "aws_instance" "project-k8s-master" {
 }
 
 resource "aws_instance" "project-consul" {
+    count = 3
     ami = "ami-04b9e92b5572fa0d1"
     instance_type = "t2.micro"
     subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0], 1)}"
     vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-consul}"]
     key_name = "ansible_key"
     tags = {
-        Name = "project-consul"
+        Name = "project-consul${count.index}"
     }
 }
