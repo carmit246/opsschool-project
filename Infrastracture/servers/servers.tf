@@ -45,6 +45,20 @@ resource "aws_instance" "project-bastion" {
 }
  
 
+
+resource "aws_instance" "project-jenkins" {
+    #count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
+    ami = "ami-024582e76075564db"
+    instance_type = "t2.micro"
+    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0],1)}"
+    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-pub}"]
+    key_name = "ansible_key"
+    tags = {
+        Name = "project-jenkins-master"
+    }
+}
+
+
 resource "aws_instance" "project-slave" {
     #count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
     ami = "ami-024582e76075564db"
@@ -53,7 +67,7 @@ resource "aws_instance" "project-slave" {
     vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-pub}"]
     key_name = "ansible_key"
     tags = {
-        Name = "project-slave"
+        Name = "project-jenkins-slave"
     }
 }
 
@@ -62,9 +76,8 @@ resource "aws_instance" "project-k8s-master" {
     ami = "ami-04b9e92b5572fa0d1"
     instance_type = "t2.micro"
     subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0], 1)}"
-    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-pub}"]
+    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-k8s-master}"]
     key_name = "ansible_key"
-    #iam_instance_profile = "${aws_iam_instance_profile.lesson3hw_profile.name}"
     #user_data = "${file("scripts/k8s.sh")}"
     tags = {
         Name = "project-k8s-master"
@@ -80,9 +93,9 @@ resource "aws_instance" "project-k8s-master" {
 
   resource "aws_instance" "project-k8s-nodes" {
     count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0]}")
-    ami = "ami-04b9e92b5572fa0d1"
+    ami = "ami-04b9e92b5572fa0d1" 
     instance_type = "t2.micro"
-    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0],count.index)}"
+    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0],count.index)}"
     vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-k8s-node}"]
     key_name = "ansible_key"
     #user_data = "${file("scripts/k8s_node.sh")}"

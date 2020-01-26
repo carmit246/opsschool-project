@@ -11,11 +11,17 @@ k8s-workers
 [bastion]
 ${bastion-ip}
 
+[jenkins-master]
+${jenkins-master-ip}
+
 [jenkins-slaves]
 ${jenkins-slave-ip}
 
 [k8s:vars]
-ansible_ssh_common_args='ssh -o ProxyCommand="ssh -W %h:%p -q ubuntu@${bastion-ip}
+ansible_ssh_common_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i /home/carmit/Downloads/ansible.pem ubuntu@${bastion-ip}"'
+
+[jenkins-slaves:vars]
+jenkins_master_ip=${jenkins-master-ip}
 
 [all:vars]
 ansible_ssh_private_key_file=/home/carmit/Downloads/ansible.pem 

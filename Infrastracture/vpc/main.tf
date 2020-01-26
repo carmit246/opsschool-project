@@ -56,11 +56,29 @@ resource "aws_route_table" "project-rtpub" {
 }
 
 #Create NAT
-resource "aws_instance" "project-nat" {
+resource "aws_eip" "project-nat" {
+  count = "${var.num_public_subnets}"
+  #instance = "${aws_instance.project-nat[count.index].id}"
+  vpc      = true
+  tags = {
+        Name = "project-nat${count.index}"
+    }
+}
+
+resource "aws_nat_gateway" "project-nat" {
+  count         = "${var.num_public_subnets}"
+  subnet_id     = "${element(aws_subnet.project-pub.*.id, count.index)}"
+  allocation_id = "${element(aws_eip.project-nat.*.id, count.index)}"
+  tags = {
+    Name = "project-nat${count.index}"
+  }
+}
+
+/* resource "aws_instance" "project-nat" {
     count = "${var.num_public_subnets}"
     ami = "ami-024582e76075564db"
     instance_type = "t2.micro"
-    key_name = "test1"
+    key_name = "ansible_key"
     vpc_security_group_ids = ["${aws_security_group.project-sg.id}"]
     subnet_id = "${aws_subnet.project-pub[count.index].id}"
     associate_public_ip_address = true
@@ -70,15 +88,7 @@ resource "aws_instance" "project-nat" {
         Name = "project-nat${count.index}"
     }
 }
-
-resource "aws_eip" "project-nat" {
-  count = "${var.num_public_subnets}"
-  instance = "${aws_instance.project-nat[count.index].id}"
-  vpc      = true
-  tags = {
-        Name = "project-nat${count.index}"
-    }
-}
+ */
 
 #Create route table for internal subnet
 resource "aws_route_table" "project-rtint" {
@@ -86,7 +96,8 @@ resource "aws_route_table" "project-rtint" {
     vpc_id = "${aws_vpc.project-vpc.id}"
     route {
         cidr_block = "0.0.0.0/0"
-        instance_id = "${aws_instance.project-nat[count.index].id}"
+        nat_gateway_id = "${element(aws_nat_gateway.project-nat.*.id,count.index)}"
+        #instance_id = "${aws_instance.project-nat[count.index].id}"
     }
     tags = {
         Name = "project-rtint${count.index}"
