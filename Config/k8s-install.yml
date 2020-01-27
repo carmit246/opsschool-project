@@ -119,6 +119,25 @@
      set_fact:
        join_command: "{{ join_command_raw.stdout_lines[0] }}"
 
+   - name: Download helm
+     get_url:
+       url: https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get-helm-3
+       dest: /home/ubuntu/get_help.sh
+       mode: '700'
+
+   - name: Install heml
+     shell: "/home/ubuntu/get_help.sh"
+
+   - name: Install Consul usin helm chart from a git repo
+     helm:
+     host: localhost
+     chart:
+       source:
+         type: git
+         location: https://github.com/hashicorp/consul-helm.git
+     state: present
+     name: consul
+     
 - hosts: k8s-workers
   become: yes
   tasks:

@@ -9,7 +9,7 @@ CRED_ID='ubuntu-slave1'
 LABELS=build
 USERID=${USER}
  
-cat <<EOF | java -jar jenkins-cli.jar -s $1 create-node PROJECT_SLAVE_$2
+cat <<EOF | java -jar jenkins-cli.jar -s $1 create-node $2
 <slave>
   <name>PROJECT_SLAVE1</name>
   <description></description>
