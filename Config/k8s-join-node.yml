@@ -1,0 +1,13 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+#caCertPath: /etc/kubernetes/pki/ca.crt
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: 10.0.4.90:6443
+    token: wl54na.r1h08y16n5z7jkmx
+    caCertHashes:
+    - "sha256:097c81ba8c9b15fdef045c59dce2c13b658edbbe12be8a4fa2720f25d9a41474"
+kind: JoinConfiguration
+nodeRegistration:
+  name: ip-10-0-4-118.ec2.internal
+  kubeletExtraArgs:
+    cloud-provider: aws

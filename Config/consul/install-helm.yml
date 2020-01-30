@@ -1,0 +1,82 @@
+- hosts: k8s-master
+  #become: yes
+ 
+  tasks:
+  - name: install pip3
+    become: yes
+    apt:
+      name: python3-pip
+      state: present
+
+  - name: pip install kubernetes 
+    pip:
+      name: kubernetes #"apache-airflow[kubernetes]"
+  
+  - name: pip install openshift 
+    pip:
+      name: openshift
+  
+  - name: Create Tiller ServiceAccount.
+    k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: tiller
+          namespace: kube-system
+    
+        #- name: Apply Tiller RBAC definition.
+         # k8s:
+          #  state: present
+           # definition: "{{ lookup('file', 'files/tiller-rbac.yml') | from_yaml }}"
+  
+#   - name: Download helm
+#     get_url:
+#       url: https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get-helm-3
+#       dest: /home/ubuntu/get_helm.sh
+#       mode: '555'
+      
+#   - name: Install heml
+#     become: yes
+#     shell: "/home/ubuntu/get_helm.sh >> /home/ubuntu/get_helm.txt"
+      
+
+#   - name: Retrieve helm binary archive.
+#     unarchive:
+#       src: https://storage.googleapis.com/kubernetes-helm/helm-v2.10.0-linux-amd64.tar.gz
+#       dest: /tmp
+#       creates: /usr/local/bin/helm
+#       remote_src: yes
+
+#   - name: Move helm binary into place.
+#     command: >
+#       cp /tmp/linux-amd64/helm /usr/local/bin/helm
+#       creates=/usr/local/bin/helm
+
+  - name: create tiller service account 
+    shell: "kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --serviceaccount=kube-system:tiller"
+   
+  - name: Set up Helm and Tiller.
+    command: helm init --service-account tiller
+    register: helm_init_result
+    changed_when: "'already installed' not in helm_init_result.stdout"
+    
+  - name: Get Tiller's ClusterIP.
+    k8s:
+      api_version: v1
+      kind: Service
+      name: tiller-deploy
+      namespace: kube-system
+    register: tiller_service
+    
+  - name: Set the Helm host and port.
+    set_fact:
+      helm_host: "{{ tiller_service.result.spec.clusterIP }}"
+      helm_port: "{{ tiller_service.result.spec.ports[0].port }}"
+    
+  - name: Wait for Tiller to become responsive.
+    wait_for:
+      host: '{{ helm_host }}'
+      port: '{{ helm_port }}'
+      state: started

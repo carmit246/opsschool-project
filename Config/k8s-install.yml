@@ -4,6 +4,9 @@
     ansible_host_key_checking: false
  
   tasks:
+   - name: change hostname
+     shell: hostnamectl set-hostname {{ansible_host}}     
+
    - name: containerd Installation
      apt:
        name: containerd
@@ -67,9 +70,17 @@
        enabled: yes
        masked: no
 
+   - name: copy k8s config file aws.yml to master
+     copy:
+       src: /home/carmit/Git-Repositories/Project/Config/aws.yml
+       dest: /home/ubuntu/aws.yml
+       owner: ubuntu
+       group: ubuntu
+      
    - name: Start the cluster
       #become_user: ubuntu
-     shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU  >> cluster.txt #
+     #shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --cloud-provider=aws  >> cluster.txt 
+     shell: kubeadm init --config=/home/ubuntu/aws.yml --ignore-preflight-errors=NumCPU >> cluster.txt 
      args:
        chdir: $HOME
        creates: cluster.txt
@@ -112,37 +123,36 @@
 
    - name: get join command
      become_user: ubuntu
-     shell: kubeadm token create --print-join-command
+     shell: kubeadm token create --print-join-command > join_command.txt
      register: join_command_raw
+     args:
+      chdir: $HOME
+      creates: join_command.txt
 
-   - name: set join command
-     set_fact:
-       join_command: "{{ join_command_raw.stdout_lines[0] }}"
-
-   - name: Download helm
-     get_url:
-       url: https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get-helm-3
-       dest: /home/ubuntu/get_help.sh
-       mode: '700'
-
-   - name: Install heml
-     shell: "/home/ubuntu/get_help.sh"
-
-   - name: Install Consul usin helm chart from a git repo
-     helm:
-     host: localhost
-     chart:
-       source:
-         type: git
-         location: https://github.com/hashicorp/consul-helm.git
-     state: present
-     name: consul
-     
+   - name: copy join command
+     #set_fact:
+       #join_command: "{{ join_command_raw.stdout }}"
+     fetch:
+       src: /home/ubuntu/join_command.txt
+       dest: /home/carmit/Git-Repositories/Project/Config/join_command
+   #- debug:
+    #   var: join_command
+       #global: true
+    
 - hosts: k8s-workers
   become: yes
+  vars:
+    join_command: "{{ lookup('file', '/home/carmit/Git-Repositories/Project/Config/join_command/master/home/ubuntu/join_command.txt') }}"
   tasks:
+   - name: set join config file
+     template:
+       src: /home/carmit/Git-Repositories/Project/Config/k8s-join-node.j2
+       dest: /home/ubuntu/k8s-join-node.yml
+       owner: ubuntu
+
    - name: join cluster
-     shell: "{{ hostvars['master'].join_command }} >> node_joined.txt"
+     shell: kubeadm join --config /home/ubuntu/k8s-join-node.yml > node_joined.txt
+#   shell: "{{ hostvars['master'].join_command }} >> node_joined.txt"
      args:
        chdir: $HOME
        creates: node_joined.txt

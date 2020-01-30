@@ -1,0 +1,74 @@
+- hosts: consul
+  become: yes
+  tasks:
+  - name: Update the software package repository
+    apt:
+      update_cache: true
+
+  - name: Install dependencies
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: true
+    with_items:
+      - curl
+      - net-tools
+      - unzip
+     
+  - name: Install consul 
+    unarchive:
+      src: https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+     
+  - name: Create consul user
+    user:
+      name: consul
+
+  - name: Create Consul /var directory
+    file:
+      path: /var/consul
+      state: directory
+      owner: consul
+      group: consul
+      mode: 0755
+  - name: Create Consul directory
+    file:
+      path: /etc/consul.d
+      state: directory
+      mode: 0755
+
+  - name: set consul config file
+    template:
+      src: /home/carmit/Git-Repositories/Project/Config/consul/config.json.j2
+      dest: /etc/consul.d/config.json
+  
+  - name: Copy systemd consul.service 
+    copy:
+      src: /home/carmit/Git-Repositories/Project/Config/consul/consul.service
+      dest: /etc/systemd/system/consul.service
+
+  - name: Create Consul /run directory
+    file:
+      path: /run/consul
+      state: directory
+      owner: consul
+      group: consul
+      mode: 0755
+
+  - name: Create Consul /opt directory
+    file:
+      path: /opt/consul
+      state: directory
+      owner: consul
+      group: consul
+      mode: 0755
+  
+  - name: just force systemd to reread configs
+    systemd:
+      daemon_reload: yes
+    
+  - name: Start Consul
+    systemd:
+      name: consul.service
+      state: started

@@ -1,0 +1,15 @@
+{% set vars = join_command.split(' ') %}
+apiVersion: kubeadm.k8s.io/v1beta2
+#caCertPath: /etc/kubernetes/pki/ca.crt
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: {{ masterip }}:6443
+    token: {{ vars[4] }}
+    caCertHashes:
+    - "{{vars[10]}}"
+  timeout: 10m0s
+kind: JoinConfiguration
+nodeRegistration:
+  name: {{workerip}}
+  kubeletExtraArgs:
+    cloud-provider: aws

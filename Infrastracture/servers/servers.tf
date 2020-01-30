@@ -48,10 +48,11 @@ resource "aws_instance" "project-bastion" {
 
 resource "aws_instance" "project-jenkins" {
     #count = length("${data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0]}")
-    ami = "ami-024582e76075564db"
+    #ami = "ami-024582e76075564db"
+    ami = "ami-062b01a91f75b7ddd"
     instance_type = "t2.micro"
     subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0],1)}"
-    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-pub}"]
+    vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-jenkins-master}"]
     key_name = "ansible_key"
     tags = {
         Name = "project-jenkins-master"
@@ -74,13 +75,19 @@ resource "aws_instance" "project-slave" {
 
 resource "aws_instance" "project-k8s-master" {
     ami = "ami-04b9e92b5572fa0d1"
+    #ami = "ami-069fa5f549baee43b"
     instance_type = "t2.micro"
     subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0], 1)}"
     vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-k8s-master}"]
     key_name = "ansible_key"
+    iam_instance_profile = "${aws_iam_instance_profile.opsschool-project.name}"
+    root_block_device {
+      volume_size = 20
+    }
     #user_data = "${file("scripts/k8s.sh")}"
     tags = {
         Name = "project-k8s-master"
+        "kubernetes.io/cluster/kubernetes" = "kubernetes"
     }
 
   #   connection {
@@ -99,9 +106,10 @@ resource "aws_instance" "project-k8s-master" {
     vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-k8s-node}"]
     key_name = "ansible_key"
     #user_data = "${file("scripts/k8s_node.sh")}"
-    #iam_instance_profile = "${aws_iam_instance_profile.lesson3hw_profile.name}"
+    iam_instance_profile = "${aws_iam_instance_profile.opsschool-project.name}"
     tags = {
         Name = "project-k8s-node${count.index}"
+        "kubernetes.io/cluster/kubernetes" = "kubernetes"
     }
 }
 
@@ -109,9 +117,10 @@ resource "aws_instance" "project-consul" {
     count = 3
     ami = "ami-04b9e92b5572fa0d1"
     instance_type = "t2.micro"
-    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-int-id[0], 1)}"
+    subnet_id = "${element(data.terraform_remote_state.project-vpc.outputs.subnet-pub-id[0], 1)}"
     vpc_security_group_ids = ["${data.terraform_remote_state.project-vpc.outputs.security-group-consul}"]
     key_name = "ansible_key"
+    iam_instance_profile = "${aws_iam_instance_profile.opsschool-project.name}"
     tags = {
         Name = "project-consul${count.index}"
     }

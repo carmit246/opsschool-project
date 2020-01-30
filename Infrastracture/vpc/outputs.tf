@@ -25,3 +25,7 @@ output "security-group-k8s-master" {
 output "security-group-k8s-node" {
   value = "${aws_security_group.k8s-node.id}"
 }
+
+output "security-group-jenkins-master" {
+  value = "${aws_security_group.jenkins-master.id}"
+}

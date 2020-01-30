@@ -1,4 +1,4 @@
-jenkins_master_url: http://54.198.104.142:8080
+jenkins_master_url: http://34.239.46.239:8080
 jenkins_home: /home/ubuntu
 #jenkins_node_labels: 
 jenkins_username: ubuntu

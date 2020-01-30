@@ -1,0 +1,37 @@
+- hosts: k8s-master
+  #become: yes
+ 
+  tasks:
+  - name: Download helm
+    get_url:
+      url: https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get-helm-3
+      dest: /home/ubuntu/get_helm.sh
+      mode: '555'
+          
+  - name: Install heml
+    become: yes
+    shell: "/home/ubuntu/get_helm.sh >> /home/ubuntu/get_helm.txt"
+          
+  - name: copy gp2.yml
+    copy:
+      src: /home/carmit/Git-Repositories/Project/Config/gp2.yml
+      dest: /home/ubuntu/gp2.yml
+
+  - name: config gp2
+    shell: kubectl apply -f /home/ubuntu/gp2.yml
+      
+  - name: copy pv.yml
+    copy:
+      src: /home/carmit/Git-Repositories/Project/Config/pv.yml
+      dest: /home/ubuntu/pv.yml
+
+  - name: config pv
+    shell: kubectl apply -f /home/ubuntu/pv.yml
+
+  - name: clone consul repo
+    git:
+      repo: https://github.com/helm/charts.git
+      dest: /home/ubuntu/consul
+      
+  - name: install consul
+    shell: "helm install hashicorp /home/ubuntu/consul/stable/consul" # -f /home/ubuntu/config.yaml"

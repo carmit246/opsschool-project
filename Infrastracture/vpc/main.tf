@@ -5,6 +5,7 @@ provider "aws" {
 #Crate VPC
 resource "aws_vpc" "project-vpc" {
   cidr_block       = "${var.vpc_config.cidr_block}"
+  enable_dns_hostnames = true
   tags = {
     Name = "${var.vpc_config.name}"
   }
@@ -18,6 +19,7 @@ resource "aws_subnet" "project-pub" {
   map_public_ip_on_launch = "true"
   tags = {
     Name = "project-pub${count.index}"
+    "kubernetes.io/cluster/kubernetes" = "kubernetes"
   }
 }
 
@@ -38,6 +40,7 @@ resource "aws_internet_gateway" "project-igw" {
     
     tags = {
         Name = "project-igw"
+        "kubernetes.io/cluster/kubernetes" = "kubernetes"
     }
 }
 
@@ -71,6 +74,7 @@ resource "aws_nat_gateway" "project-nat" {
   allocation_id = "${element(aws_eip.project-nat.*.id, count.index)}"
   tags = {
     Name = "project-nat${count.index}"
+    "kubernetes.io/cluster/kubernetes" = "kubernetes"
   }
 }
 
@@ -101,6 +105,7 @@ resource "aws_route_table" "project-rtint" {
     }
     tags = {
         Name = "project-rtint${count.index}"
+        "kubernetes.io/cluster/kubernetes" = "kubernetes"
     }
 }
 
@@ -145,7 +150,7 @@ resource "aws_security_group" "project-sg" {
         cidr_blocks = ["0.0.0.0/0"]
     }
     tags = {
-        Name = "project-ssh-allowed"
+        Name = "project-sg"
     }
 }
 
@@ -223,6 +228,33 @@ resource "aws_security_group" "consul" {
     protocol    = "tcp"
     from_port   = 8500
     to_port     = 8500
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    protocol    = -1
+    from_port   = 0 
+    to_port     = 0 
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+resource "aws_security_group" "jenkins-master" {
+  name   = "jenkins-master-security-group"
+  vpc_id = "${aws_vpc.project-vpc.id}"
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 22
+    to_port     = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 8080
+    to_port     = 8080
     cidr_blocks = ["0.0.0.0/0"]
   }
 
