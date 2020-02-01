@@ -4,8 +4,8 @@
     - /home/carmit/Git-Repositories/Project/Config/Jenkins-vars.yml
 
   tasks:
-  - name: get my public IP
-    ipify_facts:
+  #- name: get my public IP
+   # ipify_facts:
 
   - name: install java
     apt:
@@ -91,7 +91,7 @@
       mode: '755'
 
   - name: Install and configure Jenkine Slave
-    shell: /home/ubuntu/create-jenkins-node.sh http://{{jenkins_master_ip}}:8080 {{ipify_public_ip}}
+    shell: /home/ubuntu/create-jenkins-node.sh http://{{jenkins_master_ip}}:8080 {{ansible_host}} #{{ipify_public_ip}}
 
    #   java -jar agent.jar -jnlpUrl http://10.201.64.144/computer/Agent_Node_1/slave-agent.jnlp -workDir "E:\Jenkins"
   # wget http://54.198.104.142:8080/jnlpJars/jenkins-cli.jar

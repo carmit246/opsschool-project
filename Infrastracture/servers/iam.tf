@@ -1,5 +1,5 @@
-resource "aws_iam_role" "opsschool-project" {
-  name = "opsschool-project"
+resource "aws_iam_role" "project-k8s" {
+  name = "project-k8s"
 
   assume_role_policy = <<EOF
 {
@@ -17,18 +17,18 @@ resource "aws_iam_role" "opsschool-project" {
 EOF
 
   tags = {
-      Name = "opsschool-project"
+      Name = "project-k8s"
   }
 }
 
-resource "aws_iam_instance_profile" "opsschool-project" {
-  name = "opsschool-project"
-  role = "${aws_iam_role.opsschool-project.name}"
+resource "aws_iam_instance_profile" "project-k8s" {
+  name = "project-k8s"
+  role = "${aws_iam_role.project-k8s.name}"
 }
 
-resource "aws_iam_role_policy" "opsschool-project" {
-  name = "opsschool-project"
-  role = "${aws_iam_role.opsschool-project.id}"
+resource "aws_iam_role_policy" "project-k8s" {
+  name = "project-k8s"
+  role = "${aws_iam_role.project-k8s.id}"
 
   policy = <<EOF
 {
@@ -91,6 +91,58 @@ resource "aws_iam_role_policy" "opsschool-project" {
                 "elasticloadbalancing:SetLoadBalancerPoliciesOfListener",
                 "iam:CreateServiceLinkedRole",
                 "kms:DescribeKey"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+EOF
+} 
+
+resource "aws_iam_role" "project-consul" {
+  name = "project-consul"
+
+  assume_role_policy = <<EOF
+{
+   "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+  tags = {
+      Name = "project-consul"
+  }
+}
+
+resource "aws_iam_instance_profile" "project-consul" {
+  name = "project-consul"
+  role = "${aws_iam_role.project-consul.name}"
+}
+
+resource "aws_iam_role_policy" "project-consul" {
+  name = "project-consul"
+  role = "${aws_iam_role.project-consul.id}"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                  "ec2:DescribeInstances",
+                  "ec2:DescribeTags",
+                  "autoscaling:DescribeAutoScalingGroups"
             ],
             "Resource": [
                 "*"

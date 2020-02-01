@@ -1,0 +1,25 @@
+{
+    "service": {
+      "id": "jenkins",
+      "name": "jenkins",
+      "tags": ["jenkins"],
+      "port": 8080,
+      "checks": [
+        {
+          "id": "tcp",
+          "name": "TCP on port 8080",
+          "tcp": "localhost:8080",
+          "interval": "30s",
+          "timeout": "2s"
+        },
+        {
+          "id": "http",
+          "name": "HTTP on port 8080",
+          "http": "http://localhost:8080/",
+          "interval": "30s",
+          "timeout": "2s"
+        }
+      ]
+    }
+  }
+  

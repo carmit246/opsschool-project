@@ -1,4 +1,4 @@
-- hosts: consul
+- hosts: jenkins-master
   become: yes
   tasks:
   - name: Update the software package repository
@@ -14,7 +14,11 @@
       - curl
       - net-tools
       - unzip
-     
+      - python3-pip
+
+  - pip: 
+      name: python-consul
+       
   - name: Install consul 
     unarchive:
       src: https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
@@ -40,9 +44,14 @@
 
   - name: set consul config file
     template:
-      src: /home/carmit/Git-Repositories/Project/Config/consul/config.json.j2
+      src: /home/carmit/Git-Repositories/Project/Config/consul/config-agent.json.j2
       dest: /etc/consul.d/config.json
   
+  - name: Copy jenkins service config file
+    copy:
+      src: /home/carmit/Git-Repositories/Project/Config/consul/jenkins.json
+      dest: /etc/consul.d/jenkins.json
+
   - name: Copy systemd consul.service 
     copy:
       src: /home/carmit/Git-Repositories/Project/Config/consul/consul.service
@@ -72,3 +81,10 @@
     systemd:
       name: consul.service
       state: started
+      
+  - name: register Jenkins with an http check
+    consul:
+      service_name: jenkins
+      service_port: 8080
+      interval: 30s
+      http: http://localhost:8080

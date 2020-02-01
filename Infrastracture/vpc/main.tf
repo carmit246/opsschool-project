@@ -178,6 +178,9 @@ resource "aws_security_group" "k8s-master" {
     to_port     = 0 
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+        Name = "project-k8s-master"
+    }
 }
 
 resource "aws_security_group" "k8s-node" {
@@ -211,6 +214,9 @@ resource "aws_security_group" "k8s-node" {
     to_port     = 0 
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+        Name = "project-k8s-nodes"
+    }
 }
 
 resource "aws_security_group" "consul" {
@@ -230,6 +236,20 @@ resource "aws_security_group" "consul" {
     to_port     = 8500
     cidr_blocks = ["0.0.0.0/0"]
   }
+    
+  ingress {
+    protocol    = "tcp"
+    from_port   = 8300
+    to_port     = 8300
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 8301
+    to_port     = 8301
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     protocol    = -1
@@ -237,6 +257,9 @@ resource "aws_security_group" "consul" {
     to_port     = 0 
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+        Name = "project-consul"
+    }
 }
 
 
@@ -258,12 +281,29 @@ resource "aws_security_group" "jenkins-master" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    protocol    = "tcp"
+    from_port   = 8300
+    to_port     = 8300
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 8301
+    to_port     = 8301
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     protocol    = -1
     from_port   = 0 
     to_port     = 0 
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+        Name = "project-jenkins"
+    }
 }
 
 #associate route table for external subnet

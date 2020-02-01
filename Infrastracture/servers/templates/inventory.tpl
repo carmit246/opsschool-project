@@ -23,6 +23,8 @@ ${consul-ip}
 
 [private:children]
 k8s
+consul
+jenkins-slaves
 
 [private:vars]
 ansible_ssh_common_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i /home/carmit/Downloads/ansible.pem ubuntu@${bastion-ip}"'

@@ -6,8 +6,16 @@ output "subnet-pub-id" {
   value = ["${aws_subnet.project-pub.*.id}"]
 }
 
+output "subnet-pub-id-str" {
+  value = "${aws_subnet.project-pub.*.id}"
+}
+
 output "subnet-int-id" {
   value = ["${aws_subnet.project-int.*.id}"]
+}
+
+output "subnet-int-id-str" {
+  value = "${aws_subnet.project-int.*.id}"
 }
 
 output "security-group-pub" {
